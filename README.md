@@ -1,5 +1,3 @@
-# **gerard**
-
 # 🧱 Gerard — Go CLI tool to rapidly scaffold clean, opinionated microservices. 
 
 **Keep your architecture clean. Keep your team fast.**
