@@ -1,1 +1,13 @@
 package configs
+
+import "{{.Module}}/configs/utils"
+
+type {{.Name}} struct {
+    // declare your config fields here:
+    Value string
+}
+
+func ({{.NameVar}} *{{.Name}}) Load() {
+    // declare your config loading logic here like:
+    {{.NameVar}}.Value = utils.GetEnv("VALUE", "default_value")
+}

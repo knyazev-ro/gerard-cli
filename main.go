@@ -24,6 +24,8 @@ func main() {
 		HandleCreateModel(os.Args)
 	case "create:interface":
 		HandleCreateInterface(os.Args)
+	case "create:config":
+		HandleCreateConfig(os.Args)
 	case "create:init":
 		HandleInit(os.Args)
 	default:

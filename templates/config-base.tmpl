@@ -1,0 +1,13 @@
+package configs
+
+type Config struct {
+	Database DatabaseConfig
+	// Server   ServerConfig
+}
+
+// New returns a new Config struct
+func New() *Config {
+	config := &Config{}
+	config.Database.Load()
+	return config
+}

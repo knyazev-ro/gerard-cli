@@ -1,0 +1,29 @@
+package configs
+
+import "{{.Module}}/configs/utils"
+
+type DatabaseConfig struct {
+	Port     string
+	Host     string
+	Url      string
+	Database string
+	Username string
+	Password string
+	Charset  string
+	Prefix   string
+	Schema   string
+	SSLmode  string
+}
+
+func (dc *DatabaseConfig) Load() {
+	dc.Port = utils.GetEnv("DB_PORT", "5432")
+	dc.Host = utils.GetEnv("DB_HOST", "localhost")
+	dc.Url = utils.GetEnv("DB_URL", "")
+	dc.Database = utils.GetEnv("DB_DATABASE", "{{.Module}}")
+	dc.Username = utils.GetEnv("DB_USERNAME", "{{.Module}}_user")
+	dc.Password = utils.GetEnv("DB_PASSWORD", "")
+	dc.Charset = utils.GetEnv("DB_CHARSET", "utf8")
+	dc.Prefix = utils.GetEnv("DB_PREFIX", "")
+	dc.Schema = utils.GetEnv("DB_SCHEMA", "public")
+	dc.SSLmode = utils.GetEnv("DB_SSLMODE", "disable")
+}

@@ -28,11 +28,13 @@ func HandleInit(args []string) {
 	tests := module + "/tests"
 	scripts := module + "/scripts"
 	docker := module + "/docker"
+	configs := module + "/configs"
+	docs := module + "/docs"
+	config_utils := configs + "/utils"
 
 	middlewares := src + "/middlewares"
 	controllers := src + "/controllers"
 	routes := src + "/routes"
-	configs := src + "/configs"
 	interfaces := src + "/interfaces"
 	models := src + "/models"
 	services := src + "/services"
@@ -44,7 +46,11 @@ func HandleInit(args []string) {
 	os.MkdirAll(middlewares, 0755)
 	os.MkdirAll(controllers, 0755)
 	os.MkdirAll(routes, 0755)
+	os.MkdirAll(docs, 0755)
+
 	os.MkdirAll(configs, 0755)
+	os.MkdirAll(config_utils, 0755)
+
 	os.MkdirAll(interfaces, 0755)
 	os.MkdirAll(models, 0755)
 	os.MkdirAll(services, 0755)
@@ -120,8 +126,24 @@ func HandleInit(args []string) {
 	}
 	// create a config file from the template in gerard/templates
 	configFile := configs + "/config.go"
-	configTmplFile := templatesFolder + "/config.tmpl"
+	configTmplFile := templatesFolder + "/config-base.tmpl"
 	path, err = ParseTemplate(configTmplFile, configFile, map[string]string{"Module": module})
+	if err != nil {
+		println("Error creating "+path+":", err.Error())
+		return
+	}
+
+	configUtilsFile := config_utils + "/config_utils.go"
+	configUtilsTmplFile := templatesFolder + "/config-utils.tmpl"
+	path, err = ParseTemplate(configUtilsTmplFile, configUtilsFile, map[string]string{"Module": module})
+	if err != nil {
+		println("Error creating "+path+":", err.Error())
+		return
+	}
+
+	configDatabaseFile := configs + "/database.go"
+	configDatabaseTmplFile := templatesFolder + "/config-database.tmpl"
+	path, err = ParseTemplate(configDatabaseTmplFile, configDatabaseFile, map[string]string{"Module": module})
 	if err != nil {
 		println("Error creating "+path+":", err.Error())
 		return
