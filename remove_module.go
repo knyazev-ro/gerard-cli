@@ -18,8 +18,8 @@ func HandleRemoveModule(args []string) {
 		println("Module name is required")
 		return
 	}
-	if module == "gerard" {
-		println("Cannot remove the 'gerard'. Are you stupid?")
+	if module == "gerard-cli" {
+		println("Cannot remove the 'gerard-cli'. Are you stupid?")
 		return
 	}
 	err := os.RemoveAll(module)
