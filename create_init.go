@@ -4,11 +4,20 @@ import (
 	"flag"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func HandleInit(args []string) {
 
-	templatesFolder := "gerard/templates"
+	settings := LoadSettings()
+	if settings == nil {
+		println("Error loading settings")
+		return
+	}
+
+	templates := settings.Templates
+	directories := settings.GeneratedModuleFileStructure
+
 	flagSet := flag.NewFlagSet("args", flag.ContinueOnError)
 	flagSet.Parse(args[2:])
 	allArgs := flagSet.Args()
@@ -24,23 +33,23 @@ func HandleInit(args []string) {
 		return
 	}
 	println("Initializing module:", module)
-	src := module + "/src"
-	tests := module + "/tests"
-	scripts := module + "/scripts"
-	docker := module + "/docker"
-	configs := module + "/configs"
-	docs := module + "/docs"
-	config_utils := configs + "/utils"
+	src := filepath.Join(module, directories.Src)
+	tests := filepath.Join(module, directories.Tests)
+	scripts := filepath.Join(module, directories.Scripts)
+	docker := filepath.Join(module, directories.Docker)
+	configs := filepath.Join(module, directories.Configs)
+	docs := filepath.Join(module, directories.Docs)
+	config_utils := filepath.Join(module, directories.ConfigUtils)
 
-	middlewares := src + "/middlewares"
-	controllers := src + "/controllers"
-	routes := src + "/routes"
-	interfaces := src + "/interfaces"
-	models := src + "/models"
-	services := src + "/services"
-	repositories := src + "/repositories"
-	utils := src + "/utils"
-	enums := src + "/enums"
+	middlewares := filepath.Join(module, directories.Middlewares)
+	controllers := filepath.Join(module, directories.Controllers)
+	routes := filepath.Join(module, directories.Routes)
+	interfaces := filepath.Join(module, directories.Interfaces)
+	models := filepath.Join(module, directories.Models)
+	services := filepath.Join(module, directories.Services)
+	repositories := filepath.Join(module, directories.Repositories)
+	utils := filepath.Join(module, directories.Utils)
+	enums := filepath.Join(module, directories.Enums)
 
 	os.MkdirAll(src, 0755)
 	os.MkdirAll(middlewares, 0755)
@@ -63,7 +72,7 @@ func HandleInit(args []string) {
 
 	// You can also create a README.md or other initial files here
 	readmeFile := module + "/README.md"
-	readmeTmplFile := templatesFolder + "/readme.tmpl"
+	readmeTmplFile := templates.Readme
 	path, err := ParseTemplate(readmeTmplFile, readmeFile, map[string]string{"Module": module})
 	if err != nil {
 		println("Error creating "+path+":", err.Error())
@@ -72,7 +81,7 @@ func HandleInit(args []string) {
 
 	//create routes.go based on template route.tmpl in gerard/templates
 	routesFile := routes + "/routes.go"
-	routesTmplFile := templatesFolder + "/route.tmpl"
+	routesTmplFile := templates.Route
 	path, err = ParseTemplate(routesTmplFile, routesFile, map[string]string{"Module": module})
 	if err != nil {
 		println("Error creating "+path+":", err.Error())
@@ -100,7 +109,7 @@ func HandleInit(args []string) {
 
 	// create a .gitignore file from the template in gerard/templates
 	gitignoreFile := module + "/.gitignore"
-	gitignoreTmplFile := templatesFolder + "/gitignore.tmpl"
+	gitignoreTmplFile := templates.GitIgnore
 	path, err = ParseTemplate(gitignoreTmplFile, gitignoreFile, map[string]string{"Module": module})
 	if err != nil {
 		println("Error creating "+path+":", err.Error())
@@ -109,7 +118,7 @@ func HandleInit(args []string) {
 
 	//create a Dockerfile from the template in gerard/templates
 	dockerfile := docker + "/Dockerfile"
-	dockerTmplFile := templatesFolder + "/dockerfile.tmpl"
+	dockerTmplFile := templates.Dockerfile
 	path, err = ParseTemplate(dockerTmplFile, dockerfile, map[string]string{"Module": module})
 	if err != nil {
 		println("Error creating "+path+":", err.Error())
@@ -118,7 +127,7 @@ func HandleInit(args []string) {
 
 	// create env example file
 	envExampleFile := module + "/.env.example"
-	envExampleTmplFile := templatesFolder + "/env-example.tmpl"
+	envExampleTmplFile := templates.EnvExample
 	path, err = ParseTemplate(envExampleTmplFile, envExampleFile, map[string]string{"Module": module})
 	if err != nil {
 		println("Error creating "+path+":", err.Error())
@@ -126,7 +135,7 @@ func HandleInit(args []string) {
 	}
 	// create a config file from the template in gerard/templates
 	configFile := configs + "/config.go"
-	configTmplFile := templatesFolder + "/config-base.tmpl"
+	configTmplFile := templates.ConfigBase
 	path, err = ParseTemplate(configTmplFile, configFile, map[string]string{"Module": module})
 	if err != nil {
 		println("Error creating "+path+":", err.Error())
@@ -134,7 +143,7 @@ func HandleInit(args []string) {
 	}
 
 	configUtilsFile := config_utils + "/config_utils.go"
-	configUtilsTmplFile := templatesFolder + "/config-utils.tmpl"
+	configUtilsTmplFile := templates.ConfigUtils
 	path, err = ParseTemplate(configUtilsTmplFile, configUtilsFile, map[string]string{"Module": module})
 	if err != nil {
 		println("Error creating "+path+":", err.Error())
@@ -142,7 +151,7 @@ func HandleInit(args []string) {
 	}
 
 	configDatabaseFile := configs + "/database.go"
-	configDatabaseTmplFile := templatesFolder + "/config-database.tmpl"
+	configDatabaseTmplFile := templates.ConfigDatabase
 	path, err = ParseTemplate(configDatabaseTmplFile, configDatabaseFile, map[string]string{"Module": module})
 	if err != nil {
 		println("Error creating "+path+":", err.Error())

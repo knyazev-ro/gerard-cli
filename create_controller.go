@@ -4,13 +4,28 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 func HandleCreateController(args []string) {
 
-	tmplFile := "gerard/templates/controller.tmpl"
-	target := "/src/controllers"
+	settings := LoadSettings()
+	if settings == nil {
+		println("Error loading settings")
+		return
+	}
+
+	commandsActivity := settings.Commands
+
+	if !commandsActivity.CreateMiddleware {
+		fmt.Println("Controller creation is disabled in settings.")
+		return
+	}
+
+	templates := settings.Templates
+	directories := settings.GeneratedModuleFileStructure
+	tmplFile := templates.Controller
 
 	var module string
 	flagSet := flag.NewFlagSet("args", flag.ContinueOnError)
@@ -25,8 +40,9 @@ func HandleCreateController(args []string) {
 		"Name": nameCamalCase,
 	}
 
-	os.MkdirAll(module+target, 0755)
-	outFile := fmt.Sprintf("%s%s/%s.go", module, target, strings.ToLower(name))
+	target := filepath.Join(module, directories.Controllers)
+	os.MkdirAll(target, 0755)
+	outFile := fmt.Sprintf("%s/%s.go", target, strings.ToLower(name))
 	path, err := ParseTemplate(tmplFile, outFile, data)
 	if err != nil {
 		println("Error creating "+path+":", err.Error())

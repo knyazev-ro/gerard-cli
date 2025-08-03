@@ -4,13 +4,27 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 func HandleCreateService(args []string) {
 
-	tmplFile := "gerard/templates/service.tmpl"
-	target := "/src/services"
+	settings := LoadSettings()
+	if settings == nil {
+		println("Error loading settings")
+		return
+	}
+	commandsActivity := settings.Commands
+
+	if !commandsActivity.CreateService {
+		fmt.Println("Service creation is disabled in settings.")
+		return
+	}
+
+	templates := settings.Templates
+	directories := settings.GeneratedModuleFileStructure
+	tmplFile := templates.Service
 
 	var module string
 	flagSet := flag.NewFlagSet("args", flag.ContinueOnError)
@@ -25,8 +39,9 @@ func HandleCreateService(args []string) {
 		"Name": nameCamalCase,
 	}
 
-	os.MkdirAll(module+target, 0755)
-	outFile := fmt.Sprintf("%s%s/%s.go", module, target, strings.ToLower(name))
+	target := filepath.Join(module, directories.Services)
+	os.MkdirAll(target, 0755)
+	outFile := fmt.Sprintf("%s/%s.go", target, strings.ToLower(name))
 	path, err := ParseTemplate(tmplFile, outFile, data)
 	if err != nil {
 		println("Error creating "+path+":", err.Error())

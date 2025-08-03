@@ -4,12 +4,27 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 func HandleCreateModel(args []string) {
 
-	tmplFile := "gerard/templates/model.tmpl"
-	target := "/src/models"
+	settings := LoadSettings()
+	if settings == nil {
+		println("Error loading settings")
+		return
+	}
+
+	commandsActivity := settings.Commands
+
+	if !commandsActivity.CreateModel {
+		fmt.Println("Model creation is disabled in settings.")
+		return
+	}
+
+	templates := settings.Templates
+	directories := settings.GeneratedModuleFileStructure
+	tmplFile := templates.Model
 
 	var module string
 	flagSet := flag.NewFlagSet("args", flag.ContinueOnError)
@@ -23,9 +38,9 @@ func HandleCreateModel(args []string) {
 	data := map[string]string{
 		"Name": nameCamalCase,
 	}
-
-	os.MkdirAll(module+target, 0755)
-	outFile := fmt.Sprintf("%s%s/%s.go", module, target, name)
+	target := filepath.Join(module, directories.Models)
+	os.MkdirAll(target, 0755)
+	outFile := fmt.Sprintf("%s/%s.go", target, name)
 	path, err := ParseTemplate(tmplFile, outFile, data)
 	if err != nil {
 		println("Error creating "+path+":", err.Error())

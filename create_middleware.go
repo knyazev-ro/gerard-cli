@@ -4,12 +4,26 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 func HandleCreateMiddleware(args []string) {
-	tmplFile := "gerard/templates/middleware.tmpl"
-	block := "/src/middlewares"
+	settings := LoadSettings()
+	if settings == nil {
+		println("Error loading settings")
+		return
+	}
+	commandsActivity := settings.Commands
+
+	if !commandsActivity.CreateMiddleware {
+		fmt.Println("Middleware creation is disabled in settings.")
+		return
+	}
+
+	templates := settings.Templates
+	directories := settings.GeneratedModuleFileStructure
+	tmplFile := templates.Middleware
 
 	var module string
 	flagSet := flag.NewFlagSet("args", flag.ContinueOnError)
@@ -29,9 +43,9 @@ func HandleCreateMiddleware(args []string) {
 		"NameVar": nameVar,
 	}
 
-	// Создаём директорию если нет
-	os.MkdirAll(module+block, 0755)
-	outFile := fmt.Sprintf("%s%s/%s.go", module, block, strings.ToLower(name))
+	target := filepath.Join(module, directories.Middlewares)
+	os.MkdirAll(target, 0755)
+	outFile := fmt.Sprintf("%s/%s.go", target, strings.ToLower(name))
 	path, err := ParseTemplate(tmplFile, outFile, data)
 	if err != nil {
 		println("Error creating "+path+":", err.Error())

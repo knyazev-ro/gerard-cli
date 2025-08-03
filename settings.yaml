@@ -1,0 +1,47 @@
+commands:
+  create-init: true
+  create-model: true
+  create-config: true
+  create-service: true
+  create-interface: true
+  create-controller: true
+  create-middleware: true
+  create-repository: true
+  remove-module: true
+
+templates:
+  service: "gerard/templates/service.tmpl"
+  controller: "gerard/templates/controller.tmpl"
+  model: "gerard/templates/model.tmpl"
+  interface: "gerard/templates/interface.tmpl"
+  config: "gerard/templates/config.tmpl"
+  config-utils: "gerard/templates/config-utils.tmpl"
+  config-base: "gerard/templates/config-base.tmpl"
+  config-database: "gerard/templates/config-database.tmpl"
+  config-server: "gerard/templates/config-server.tmpl"
+  module: "gerard/templates/module.tmpl"
+  middleware: "gerard/templates/middleware.tmpl"
+  repository: "gerard/templates/repository.tmpl"
+  dockerfile: "gerard/templates/dockerfile.tmpl"
+  gitignore: "gerard/templates/gitignore.tmpl"
+  readme: "gerard/templates/readme.tmpl"
+  route: "gerard/templates/route.tmpl"
+  env-example: "gerard/templates/env-example.tmpl"
+
+generated-file-structure:
+      docs: "docs"
+      scripts: "scripts"
+      configs: "configs"
+      config_utils: "configs/utils"
+      tests: "tests"
+      docker: "docker"
+      src: "src"
+      utils: "src/utils"
+      enums: "src/enums"
+      models: "src/models"
+      routes: "src/routes"
+      services: "src/services"
+      interfaces: "src/interfaces"
+      middlewares: "src/middlewares"
+      controllers: "src/controllers"
+      repositories: "src/repositories"

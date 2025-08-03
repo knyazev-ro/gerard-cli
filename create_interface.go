@@ -4,12 +4,27 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 func HandleCreateInterface(args []string) {
 
-	tmplFile := "gerard/templates/interface.tmpl"
-	target := "/src/interfaces"
+	settings := LoadSettings()
+	if settings == nil {
+		println("Error loading settings")
+		return
+	}
+
+	commandsActivity := settings.Commands
+
+	if !commandsActivity.CreateInterface {
+		fmt.Println("Interface creation is disabled in settings.")
+		return
+	}
+
+	templates := settings.Templates
+	directories := settings.GeneratedModuleFileStructure
+	tmplFile := templates.Interface
 
 	var module string
 	flagSet := flag.NewFlagSet("args", flag.ContinueOnError)
@@ -24,8 +39,9 @@ func HandleCreateInterface(args []string) {
 		"Name": nameCamalCase,
 	}
 
-	os.MkdirAll(module+target, 0755)
-	outFile := fmt.Sprintf("%s%s/%s.go", module, target, name)
+	target := filepath.Join(module, directories.Interfaces)
+	os.MkdirAll(target, 0755)
+	outFile := fmt.Sprintf("%s/%s.go", target, name)
 	path, err := ParseTemplate(tmplFile, outFile, data)
 	if err != nil {
 		println("Error creating "+path+":", err.Error())

@@ -4,12 +4,26 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 func HandleCreateRepository(args []string) {
+	settings := LoadSettings()
+	if settings == nil {
+		println("Error loading settings")
+		return
+	}
 
-	tmplFile := "gerard/templates/repository.tmpl"
-	target := "/src/repositories"
+	commandsActivity := settings.Commands
+
+	if !commandsActivity.CreateRepository {
+		fmt.Println("Repository creation is disabled in settings.")
+		return
+	}
+
+	templates := settings.Templates
+	directories := settings.GeneratedModuleFileStructure
+	tmplFile := templates.Repository
 
 	var module string
 	flagSet := flag.NewFlagSet("args", flag.ContinueOnError)
@@ -24,8 +38,9 @@ func HandleCreateRepository(args []string) {
 		"Name": nameCamalCase,
 	}
 
-	os.MkdirAll(module+target, 0755)
-	outFile := fmt.Sprintf("%s%s/%s.go", module, target, name)
+	target := filepath.Join(module, directories.Repositories)
+	os.MkdirAll(target, 0755)
+	outFile := fmt.Sprintf("%s/%s.go", target, name)
 	path, err := ParseTemplate(tmplFile, outFile, data)
 	if err != nil {
 		println("Error creating "+path+":", err.Error())
