@@ -119,7 +119,7 @@ func DefaultSettings() *Settings {
 
 func LoadSettings() *Settings {
 
-	settings, err := os.ReadFile("gerard/settings.yaml")
+	settings, err := os.ReadFile("gerard-cli/settings.yaml")
 
 	if err != nil {
 		println("Error reading settings.yaml:", err.Error())
