@@ -70,10 +70,19 @@ func HandleInit(args []string) {
 	os.MkdirAll(docker, 0755)
 	os.MkdirAll(enums, 0755)
 
+	// You can also create a main.go or other initial files here
+	mainFile := module + "/main.go"
+	mainTmplFile := templates.Module
+	path, err := ParseTemplate(mainTmplFile, mainFile, map[string]string{"Module": module})
+	if err != nil {
+		println("Error creating "+path+":", err.Error())
+		return
+	}
+
 	// You can also create a README.md or other initial files here
 	readmeFile := module + "/README.md"
 	readmeTmplFile := templates.Readme
-	path, err := ParseTemplate(readmeTmplFile, readmeFile, map[string]string{"Module": module})
+	path, err = ParseTemplate(readmeTmplFile, readmeFile, map[string]string{"Module": module})
 	if err != nil {
 		println("Error creating "+path+":", err.Error())
 		return
