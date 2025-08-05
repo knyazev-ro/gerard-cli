@@ -11,11 +11,17 @@ func HandleRunCommand(args []string) {
 		return
 	}
 
+	command := args[1]
+
+	if command == "help" {
+		GetHelp()
+		return
+	}
+
 	flagSet := flag.NewFlagSet("args", flag.ContinueOnError)
 	flagSet.Parse(args[2:])
 	argsArr := flagSet.Args()
 
-	command := args[1]
 	switch command {
 	case "create:middleware":
 		HandleCreateMiddleware(argsArr)
