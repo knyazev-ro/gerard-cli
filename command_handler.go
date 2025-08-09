@@ -42,7 +42,7 @@ func HandleRunCommand(args []string) {
 	case "remove:module":
 		HandleRemoveModule(argsArr)
 	default:
-		fmt.Println("Unknown command:", command)
+		WarningPrintln("Unknown command:", command)
 		return
 	}
 }

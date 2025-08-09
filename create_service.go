@@ -11,13 +11,13 @@ func HandleCreateService(args []string) {
 
 	settings := LoadSettings()
 	if settings == nil {
-		println("Error loading settings")
+		ErrorPrintln("Error loading settings")
 		return
 	}
 	commandsActivity := settings.Commands
 
 	if !commandsActivity.CreateService {
-		fmt.Println("Service creation is disabled in settings.")
+		WarningPrintln("Service creation is disabled in settings.")
 		return
 	}
 
@@ -36,11 +36,11 @@ func HandleCreateService(args []string) {
 	target := filepath.Join(module, directories.Services)
 	os.MkdirAll(target, 0755)
 	outFile := fmt.Sprintf("%s/%s.go", target, strings.ToLower(name))
-	path, err := ParseTemplate(tmplFile, outFile, data)
+	path, err := ParseTemplate(tmplFile, outFile, data, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
-	fmt.Printf("Created controller: %s\n", outFile)
+	SuccessPrintln("Created controller: ", outFile)
 }

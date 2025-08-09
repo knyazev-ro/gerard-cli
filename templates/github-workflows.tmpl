@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  MODULE_NAME: {{.Module}}
+
 jobs:
   build-test:
     runs-on: ubuntu-latest
@@ -13,10 +16,10 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Build docker image
-        run: docker build -t {{.Module}}:latest -f ./docker/Dockerfile .
+        run: docker build -t ${{"{{"}}env.MODULE_NAME{{"}}"}}:latest -f ./docker/Dockerfile .
   
       - name: run tests
-        run: docker run --rm {{.Module}}:latest go test -v
+        run: docker run --rm ${{"{{"}}env.MODULE_NAME{{"}}"}}:latest go test -v
 
   deploy:
     needs: build-test
@@ -29,9 +32,9 @@ jobs:
           username: ${{"{{"}}secrets.SERVER_USER{{"}}"}}
           key: ${{"{{"}}secrets.SERVER_SSH_KEY{{"}}"}}
           script: |
-            cd /var/www/{{.Module}}
+            cd /var/www/${{"{{"}}env.MODULE_NAME{{"}}"}}
             git pull origin main
-            docker build -t {{.Module}}:latest -f ./docker/Dockerfile .
-            docker stop {{.Module}} || true
-            docker rm {{.Module}} || true
-            docker run -d --name {{.Module}}-app -p 80:80 {{.Module}}:latest
+            docker build -t ${{"{{"}}env.MODULE_NAME{{"}}"}}:latest -f ./docker/Dockerfile .
+            docker stop ${{"{{"}}env.MODULE_NAME{{"}}"}} || true
+            docker rm ${{"{{"}}env.MODULE_NAME{{"}}"}} || true
+            docker run -d --name ${{"{{"}}env.MODULE_NAME{{"}}"}}-app -p 80:80 ${{"{{"}}env.MODULE_NAME{{"}}"}}:latest

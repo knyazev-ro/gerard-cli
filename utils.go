@@ -6,16 +6,30 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/fatih/color"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
 
-func ParseTemplate(templatePath string, outputFilePath string, data interface{}) (string, error) {
+func Contains[T any](arr []T, needle func(T) bool) int {
+	for i := range arr {
+		if needle(arr[i]) {
+			return i
+		}
+	}
+	return -1
+}
+
+func ParseTemplate(templatePath string, outputFilePath string, data interface{}, args []string) (string, error) {
+
+	isForce := Contains(args, func(x string) bool {
+		return x == "--force"
+	}) >= 0
 
 	//check if output directory exists, if it exists then nothing
-	if _, err := os.Stat(outputFilePath); !os.IsNotExist(err) {
+	if _, err := os.Stat(outputFilePath); !os.IsNotExist(err) && !isForce {
 		println("Warning: output file already exists:", outputFilePath)
-		return outputFilePath, nil
+		return outputFilePath, os.ErrExist
 	}
 
 	if _, err := os.Stat(templatePath); os.IsNotExist(err) {
@@ -69,4 +83,19 @@ func ValidateName(module string) (string, error) {
 	}
 
 	return module, nil
+}
+
+func ErrorPrintln(a ...any) {
+	c := color.New(color.BgRed)
+	c.Println(a...)
+}
+
+func SuccessPrintln(a ...any) {
+	c := color.New(color.BgGreen)
+	c.Println(a...)
+}
+
+func WarningPrintln(a ...any) {
+	c := color.New(color.BgYellow)
+	c.Println(a...)
 }

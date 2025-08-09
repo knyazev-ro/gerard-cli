@@ -8,27 +8,35 @@ import (
 )
 
 func HandleCreateModule(args []string) {
+	if len(args) < 1 {
+		ErrorPrintln("Error: missing module name")
+		return
+	}
+
+	module := args[0]
+	module, err := ValidateName(module)
+	if err != nil {
+		ErrorPrintln("Erro: invalid module name:", err.Error())
+		return
+	}
+
+	isForce := Contains(args, func(e string) bool {
+		return e == "--force"
+	}) >= 0
+
+	if _, err := os.Stat(module); !os.IsNotExist(err) && !isForce {
+		println("Module already exists.")
+		return
+	}
 
 	settings := LoadSettings()
 	if settings == nil {
-		println("Error loading settings")
+		ErrorPrintln("Error loading settings")
 		return
 	}
 
 	templates := settings.Templates
 	directories := settings.GeneratedModuleFileStructure
-
-	if len(args) < 1 {
-		println("Error: missing module name")
-		return
-	}
-
-	module := args[0]
-
-	module, err := ValidateName(module)
-	if err != nil {
-		println("Erro: invalid module name:", err.Error())
-	}
 
 	println("Initializing module:", module)
 	src := filepath.Join(module, directories.Src)
@@ -73,36 +81,36 @@ func HandleCreateModule(args []string) {
 	// You can also create a main.go or other initial files here
 	mainFile := module + "/main.go"
 	mainTmplFile := templates.Module
-	path, err := ParseTemplate(mainTmplFile, mainFile, map[string]string{"Route": strings.Join(strings.Split(routes, "\\"), "/")})
+	path, err := ParseTemplate(mainTmplFile, mainFile, map[string]string{"Route": strings.Join(strings.Split(routes, "\\"), "/")}, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
 	// You can also create a githubWorkflows or other initial files here
-	githubWorkflowFile := githubWorkflows + "/action.yaml"
+	githubWorkflowFile := githubWorkflows + "/workflow.yaml"
 	githubWorkflowTmplFile := templates.GithubWorkflows
-	path, err = ParseTemplate(githubWorkflowTmplFile, githubWorkflowFile, map[string]string{"Module": module})
+	path, err = ParseTemplate(githubWorkflowTmplFile, githubWorkflowFile, map[string]string{"Module": module}, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
 	// You can also create a README.md or other initial files here
 	readmeFile := module + "/README.md"
 	readmeTmplFile := templates.Readme
-	path, err = ParseTemplate(readmeTmplFile, readmeFile, map[string]string{"Module": module})
+	path, err = ParseTemplate(readmeTmplFile, readmeFile, map[string]string{"Module": module}, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
 	//create routes.go based on template route.tmpl in gerard/templates
 	routesFile := routes + "/routes.go"
 	routesTmplFile := templates.Route
-	path, err = ParseTemplate(routesTmplFile, routesFile, map[string]string{"Module": module})
+	path, err = ParseTemplate(routesTmplFile, routesFile, map[string]string{"Module": module}, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
@@ -112,8 +120,7 @@ func HandleCreateModule(args []string) {
 	err = cmd.Run()
 
 	if err != nil {
-		println("Error initializing Go module:", err.Error())
-		return
+		ErrorPrintln("Error while running Go Mod Go module:", err.Error(), ". Skip this step...")
 	}
 
 	cmd = exec.Command("go", "mod", "tidy")
@@ -121,58 +128,58 @@ func HandleCreateModule(args []string) {
 	err = cmd.Run()
 
 	if err != nil {
-		println("Error running go mod tidy:", err.Error())
+		ErrorPrintln("Error running go mod tidy:", err.Error())
 		return
 	}
 
 	// create a .gitignore file from the template in gerard/templates
 	gitignoreFile := module + "/.gitignore"
 	gitignoreTmplFile := templates.GitIgnore
-	path, err = ParseTemplate(gitignoreTmplFile, gitignoreFile, map[string]string{"Module": module})
+	path, err = ParseTemplate(gitignoreTmplFile, gitignoreFile, map[string]string{"Module": module}, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
 	//create a Dockerfile from the template in gerard/templates
 	dockerfile := docker + "/Dockerfile"
 	dockerTmplFile := templates.Dockerfile
-	path, err = ParseTemplate(dockerTmplFile, dockerfile, map[string]string{"Module": module})
+	path, err = ParseTemplate(dockerTmplFile, dockerfile, map[string]string{"Module": module}, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
 	// create env example file
 	envExampleFile := module + "/.env.example"
 	envExampleTmplFile := templates.EnvExample
-	path, err = ParseTemplate(envExampleTmplFile, envExampleFile, map[string]string{"Module": module})
+	path, err = ParseTemplate(envExampleTmplFile, envExampleFile, map[string]string{"Module": module}, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 	// create a config file from the template in gerard/templates
 	configFile := configs + "/config.go"
 	configTmplFile := templates.ConfigBase
-	path, err = ParseTemplate(configTmplFile, configFile, map[string]string{"Module": module})
+	path, err = ParseTemplate(configTmplFile, configFile, map[string]string{"Module": module}, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
 	configUtilsFile := config_utils + "/config_utils.go"
 	configUtilsTmplFile := templates.ConfigUtils
-	path, err = ParseTemplate(configUtilsTmplFile, configUtilsFile, map[string]string{"Module": module})
+	path, err = ParseTemplate(configUtilsTmplFile, configUtilsFile, map[string]string{"Module": module}, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
 	configDatabaseFile := configs + "/database.go"
 	configDatabaseTmplFile := templates.ConfigDatabase
-	path, err = ParseTemplate(configDatabaseTmplFile, configDatabaseFile, map[string]string{"Module": module})
+	path, err = ParseTemplate(configDatabaseTmplFile, configDatabaseFile, map[string]string{"Module": module}, args)
 	if err != nil {
-		println("Error creating "+path+":", err.Error())
+		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
@@ -181,13 +188,13 @@ func HandleCreateModule(args []string) {
 	err = cmd.Run()
 
 	if err != nil {
-		println("Error initializing git repository:", err.Error())
+		ErrorPrintln("Error initializing git repository:", err.Error())
 		return
 	}
 	// Here you would typically create the module directory structure
 	// and possibly generate some initial files or configurations.
 	// For now, we just print the module name.
-	println("Module initialized successfully:", module)
+	SuccessPrintln("Module initialized successfully:", module)
 	println("You can now start adding controllers, middlewares, and routes to your module.")
 
 }
