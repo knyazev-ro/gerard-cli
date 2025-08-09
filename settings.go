@@ -46,6 +46,7 @@ type Template struct {
 	ConfigServer    string `yaml:"config-server"`
 	ConfigUtils     string `yaml:"config-utils"`
 	GithubWorkflows string `yaml:"github-workflows"`
+	Test            string `yaml:"test"`
 }
 
 type Command struct {
@@ -104,6 +105,7 @@ func DefaultSettings() *Settings {
 			ConfigServer:    "gerard-cli/templates/config_server.tmpl",
 			ConfigUtils:     "gerard-cli/templates/config_utils.tmpl",
 			GithubWorkflows: "gerard-cli/templates/github-workflows",
+			Test:            "gerard-cli/templates/test.tmpl",
 		},
 
 		Commands: Command{

@@ -28,6 +28,7 @@ templates:
   route: "gerard-cli/templates/route.tmpl"
   env-example: "gerard-cli/templates/env-example.tmpl"
   github-workflows: "gerard-cli/templates/github-workflows.tmpl"
+  test: "gerard-cli/templates/test.tmpl"
 
 generated-file-structure:
       docs: "docs"

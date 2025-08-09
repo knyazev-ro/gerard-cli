@@ -81,7 +81,11 @@ func HandleCreateModule(args []string) {
 	// You can also create a main.go or other initial files here
 	mainFile := module + "/main.go"
 	mainTmplFile := templates.Module
-	path, err := ParseTemplate(mainTmplFile, mainFile, map[string]string{"Route": strings.Join(strings.Split(routes, "\\"), "/")}, args)
+	path, err := ParseTemplate(mainTmplFile, mainFile, map[string]string{
+		"Route":    strings.Join(strings.Split(routes, "\\"), "/"),
+		"FileName": module,
+		"Module":   module,
+	}, args)
 	if err != nil {
 		ErrorPrintln("Error creating "+path+":", err.Error())
 		return

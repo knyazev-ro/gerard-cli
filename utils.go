@@ -36,10 +36,23 @@ func ParseTemplate(templatePath string, outputFilePath string, data interface{},
 		return x == "--force"
 	}) >= 0
 
+	withTests := Contains(args, func(x string) bool {
+		return x == "--with-tests"
+	}) >= 0
+
 	//check if output directory exists, if it exists then nothing
 	if _, err := os.Stat(outputFilePath); !os.IsNotExist(err) && !isForce {
 		WarningPrintln("Warning: output file already exists:", outputFilePath)
 		return outputFilePath, os.ErrExist
+	}
+
+	dataMap := data.(map[string]string)
+	if withTests {
+		argsForTest := []string{dataMap["FileName"], dataMap["Module"]}
+		if isForce {
+			argsForTest = append(argsForTest, "--force")
+		}
+		HandleCreateTesting(argsForTest)
 	}
 
 	if _, err := os.Stat(templatePath); os.IsNotExist(err) {
@@ -77,6 +90,7 @@ func Normalize(name string) (string, string, string, error) {
 		"\\", " ",
 		"|", " ",
 		"/", " ",
+		"_test", "",
 	)
 	name = r.Replace(name)
 	nameSplit := strings.Join(strings.Fields(name), " ")
@@ -85,6 +99,7 @@ func Normalize(name string) (string, string, string, error) {
 	name = strings.ToLower(name)
 
 	name, err := ValidateName(name)
+	println(name)
 	if err != nil {
 		ErrorPrintln("Filename is invalid")
 		return "", "", "", err

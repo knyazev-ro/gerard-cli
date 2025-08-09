@@ -4,26 +4,26 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-func HandleCreateModel(args []string) {
+func HandleCreateTesting(args []string) {
 
 	settings := LoadSettings()
 	if settings == nil {
 		ErrorPrintln("Error loading settings")
 		return
 	}
-
 	commandsActivity := settings.Commands
 
-	if !commandsActivity.CreateModel {
-		WarningPrintln("Model creation is disabled in settings.")
+	if !commandsActivity.CreateService {
+		WarningPrintln("Test creation is disabled in settings.")
 		return
 	}
 
 	templates := settings.Templates
 	directories := settings.GeneratedModuleFileStructure
-	tmplFile := templates.Model
+	tmplFile := templates.Service
 
 	module := args[1]
 	name := args[0]
@@ -40,18 +40,17 @@ func HandleCreateModel(args []string) {
 		return
 	}
 	data := map[string]string{
-		"Name":     nameCamalCase,
-		"FileName": name,
-		"Module":   module,
+		"Name": "Test" + nameCamalCase,
 	}
-	target := filepath.Join(module, directories.Models)
+
+	target := filepath.Join(module, directories.Tests)
 	os.MkdirAll(target, 0755)
-	outFile := fmt.Sprintf("%s/%s.go", target, name)
+	outFile := fmt.Sprintf("%s/%s.go", target, strings.ToLower(name+"_test"))
 	path, err := ParseTemplate(tmplFile, outFile, data, args)
 	if err != nil {
 		ErrorPrintln("Error creating "+path+":", err.Error())
 		return
 	}
 
-	SuccessPrintln("Created model: ", outFile)
+	SuccessPrintln("Created test: ", outFile)
 }

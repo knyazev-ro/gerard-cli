@@ -27,6 +27,11 @@ func HandleCreateConfig(args []string) {
 
 	module := args[1]
 	name := args[0]
+	module, err := ValidateName(module)
+	if err != nil {
+		ErrorPrintln("Erro: invalid module name:", err.Error())
+		return
+	}
 
 	nameCamalCase, nameVar, name, err := Normalize(name)
 
@@ -36,9 +41,10 @@ func HandleCreateConfig(args []string) {
 	}
 
 	data := map[string]string{
-		"Module":  module,
-		"Name":    nameCamalCase,
-		"NameVar": nameVar,
+		"Module":   module,
+		"Name":     nameCamalCase,
+		"NameVar":  nameVar,
+		"FileName": name,
 	}
 	target := filepath.Join(module, directories.Configs)
 	os.MkdirAll(target, 0755)

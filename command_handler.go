@@ -41,6 +41,8 @@ func HandleRunCommand(args []string) {
 		HandleCreateModule(argsArr)
 	case "remove:module":
 		HandleRemoveModule(argsArr)
+	case "create:test":
+		HandleCreateTesting(argsArr)
 	default:
 		WarningPrintln("Unknown command:", command)
 		return

@@ -28,13 +28,21 @@ func HandleCreateService(args []string) {
 	module := args[1]
 	name := args[0]
 
+	module, err := ValidateName(module)
+	if err != nil {
+		ErrorPrintln("Erro: invalid module name:", err.Error())
+		return
+	}
+
 	nameCamalCase, _, name, err := Normalize(name)
 	if err != nil {
 		ErrorPrintln("Filename is invalid.")
 		return
 	}
 	data := map[string]string{
-		"Name": nameCamalCase,
+		"Name":     nameCamalCase,
+		"FileName": name,
+		"Module":   module,
 	}
 
 	target := filepath.Join(module, directories.Services)
