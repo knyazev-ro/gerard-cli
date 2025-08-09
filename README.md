@@ -48,7 +48,7 @@ cd ..
 ### 3. Используйте команды Gerard!
 
 ```bash
-gerard.exe create:init <module_name>
+gerard.exe create:module <module_name>
 ```
 
 Создаёт новый модуль с базовой структурой и шаблонами.
@@ -58,7 +58,7 @@ gerard.exe create:init <module_name>
 ## 💡 Доступные команды
 
 ```plaintext
-gerard.exe create:init <module_name>                   - Создать новый модуль
+gerard.exe create:module <module_name>                   - Создать новый модуль
 gerard.exe create:controller <name> <module>           - Добавить контроллер в модуль
 gerard.exe create:middleware <name> <module>           - Добавить middleware в модуль
 gerard.exe create:model <name> <module>                 - Создать модель в модуле
