@@ -1,7 +1,7 @@
 package main
 
 import (
-	"os"
+	"embed"
 
 	"gopkg.in/yaml.v2"
 )
@@ -24,6 +24,7 @@ type GeneratedModuleFileStructure struct {
 	ConfigUtils     string `yaml:"config_utils"`
 	Src             string `yaml:"src"`
 	GithubWorkflows string `yaml:"github-workflows"`
+	Migrations      string `yaml:"migrations"`
 }
 
 type Template struct {
@@ -38,6 +39,7 @@ type Template struct {
 	Dockerfile      string `yaml:"dockerfile"`
 	EnvExample      string `yaml:"env-example"`
 	Module          string `yaml:"module"`
+	App             string `yaml:"app"`
 	Readme          string `yaml:"readme"`
 	GitIgnore       string `yaml:"gitignore"`
 	Config          string `yaml:"config"`
@@ -47,6 +49,7 @@ type Template struct {
 	ConfigUtils     string `yaml:"config-utils"`
 	GithubWorkflows string `yaml:"github-workflows"`
 	Test            string `yaml:"test"`
+	Migrations      string `yaml:"migrations"`
 }
 
 type Command struct {
@@ -87,25 +90,27 @@ func DefaultSettings() *Settings {
 			ConfigUtils:     "configs/utils",
 			Src:             "src",
 			GithubWorkflows: ".github/workflows",
+			Migrations:      "migratiosn",
 		},
 		Templates: Template{
-			Repository:      "gerard-cli/templates/repository.tmpl",
-			Controller:      "gerard-cli/templates/controller.tmpl",
-			Service:         "gerard-cli/templates/service.tmpl",
-			Interface:       "gerard-cli/templates/interface.tmpl",
-			Model:           "gerard-cli/templates/model.tmpl",
-			Middleware:      "gerard-cli/templates/middleware.tmpl",
-			Route:           "gerard-cli/templates/route.tmpl",
-			Enum:            "gerard-cli/templates/enum.tmpl",
-			Dockerfile:      "gerard-cli/templates/dockerfile.tmpl",
-			EnvExample:      "gerard-cli/templates/env-example.tmpl",
-			GitIgnore:       "gerard-cli/templates/gitignore.tmpl",
-			ConfigBase:      "gerard-cli/templates/config_base.tmpl",
-			ConfigDatabase:  "gerard-cli/templates/config_database.tmpl",
-			ConfigServer:    "gerard-cli/templates/config_server.tmpl",
-			ConfigUtils:     "gerard-cli/templates/config_utils.tmpl",
-			GithubWorkflows: "gerard-cli/templates/github-workflows",
-			Test:            "gerard-cli/templates/test.tmpl",
+			Repository:      "repository.tmpl",
+			Controller:      "controller.tmpl",
+			Service:         "service.tmpl",
+			Interface:       "interface.tmpl",
+			Model:           "model.tmpl",
+			Middleware:      "middleware.tmpl",
+			Route:           "route.tmpl",
+			Enum:            "enum.tmpl",
+			Dockerfile:      "dockerfile.tmpl",
+			EnvExample:      "env-example.tmpl",
+			GitIgnore:       "gitignore.tmpl",
+			ConfigBase:      "config_base.tmpl",
+			ConfigDatabase:  "config_database.tmpl",
+			ConfigServer:    "config_server.tmpl",
+			ConfigUtils:     "config_utils.tmpl",
+			GithubWorkflows: "github-workflows",
+			Test:            "test.tmpl",
+			Migrations:      "migrations.tmpl",
 		},
 
 		Commands: Command{
@@ -123,9 +128,12 @@ func DefaultSettings() *Settings {
 	return &settings
 }
 
+//go:embed settings.yaml
+var settingsFS embed.FS
+
 func LoadSettings() *Settings {
 
-	settings, err := os.ReadFile("gerard-cli/settings.yaml")
+	settings, err := settingsFS.ReadFile("settings.yaml")
 
 	if err != nil {
 		println("Error reading settings.yaml:", err.Error())

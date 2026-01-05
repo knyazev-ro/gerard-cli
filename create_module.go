@@ -47,6 +47,7 @@ func HandleCreateModule(args []string) {
 	docs := filepath.Join(module, directories.Docs)
 	config_utils := filepath.Join(module, directories.ConfigUtils)
 	githubWorkflows := filepath.Join(module, directories.GithubWorkflows)
+	migrations := filepath.Join(module, directories.Migrations)
 
 	middlewares := filepath.Join(module, directories.Middlewares)
 	controllers := filepath.Join(module, directories.Controllers)
@@ -68,6 +69,8 @@ func HandleCreateModule(args []string) {
 	os.MkdirAll(config_utils, 0755)
 	os.MkdirAll(githubWorkflows, 0755)
 
+	os.MkdirAll(migrations, 0755)
+
 	os.MkdirAll(interfaces, 0755)
 	os.MkdirAll(models, 0755)
 	os.MkdirAll(services, 0755)
@@ -81,10 +84,19 @@ func HandleCreateModule(args []string) {
 	// You can also create a main.go or other initial files here
 	mainFile := module + "/main.go"
 	mainTmplFile := templates.Module
-	path, err := ParseTemplate(mainTmplFile, mainFile, map[string]string{
-		"Route":    strings.Join(strings.Split(routes, "\\"), "/"),
-		"FileName": module,
-		"Module":   module,
+	path, err := ParseTemplate(mainTmplFile, mainFile, map[string]string{"Module": module}, args)
+	if err != nil {
+		ErrorPrintln("Error creating "+path+":", err.Error())
+		return
+	}
+
+	appFile := module + "/app.go"
+	appTmplFile := templates.App
+	path, err = ParseTemplate(appTmplFile, appFile, map[string]string{
+		"Route":      strings.Join(strings.Split(routes, "\\"), "/"),
+		"FileName":   module,
+		"Module":     module,
+		"Migrations": strings.Join(strings.Split(migrations, "\\"), "/"),
 	}, args)
 	if err != nil {
 		ErrorPrintln("Error creating "+path+":", err.Error())
@@ -113,6 +125,14 @@ func HandleCreateModule(args []string) {
 	routesFile := routes + "/routes.go"
 	routesTmplFile := templates.Route
 	path, err = ParseTemplate(routesTmplFile, routesFile, map[string]string{"Module": module}, args)
+	if err != nil {
+		ErrorPrintln("Error creating "+path+":", err.Error())
+		return
+	}
+
+	migrationsFile := migrations + "/migrations.go"
+	migrationsTmplFile := templates.Migrations
+	path, err = ParseTemplate(migrationsTmplFile, migrationsFile, map[string]string{"Module": module}, args)
 	if err != nil {
 		ErrorPrintln("Error creating "+path+":", err.Error())
 		return

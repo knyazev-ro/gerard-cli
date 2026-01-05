@@ -1,0 +1,40 @@
+package main
+
+import (
+	"{{.Route}}"
+	"fmt"
+	"net/http"
+	"os"
+	"strings"
+
+	_ "{{.Migrations}}"
+
+	"github.com/gorilla/mux"
+	"github.com/knyazev-ro/perturabo/cmd"
+)
+
+// list of declarations
+func RegisterCli() {
+	cmd.Handle(os.Args)
+	// etc.
+}
+
+func App() {
+	args := os.Args
+	if args[1] == "server:up" {
+		Server(args[1:])
+		return
+	}
+	RegisterCli()
+	return
+}
+
+func Server(args []string) {
+	r := mux.NewRouter()
+	routes.RegisterRoutes(r)
+	host := "0.0.0.0"
+	port := "8080"
+	hp := strings.Join([]string{host, port}, ":")
+	println(fmt.Sprintf("Gerard server Up at %s. Ready to accept connections!", hp))
+	http.ListenAndServe(hp, r)
+}
