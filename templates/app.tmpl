@@ -11,6 +11,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/knyazev-ro/perturabo/cmd"
+	vulcanCfg "github.com/knyazev-ro/vulcan/config"
+	vulcanOrmDb "github.com/knyazev-ro/vulcan/orm/db"
 )
 
 // list of declarations
@@ -19,14 +21,31 @@ func RegisterCli() {
 	// etc.
 }
 
+func RegisterORM(dbC *configs.DatabaseConfig) {
+	vulcanCfg.SetConfig(&vulcanCfg.Config{
+		Driver:   "postgres",
+		User:     dbC.Username,
+		Password: dbC.Password,
+		Host:     dbC.Host,
+		Port:     dbC.Port,
+		Database: dbC.Database,
+	})
+	vulcanOrmDb.Init()
+}
+
+func RegisterConfigs() {
+	configs.Init()
+	RegisterORM(&configs.GlobalConfig.Database)
+}
+
 func App() {
+	RegisterConfigs()
 	args := os.Args
 	if args[1] == "server:up" {
 		Server(args[1:])
 		return
 	}
 	RegisterCli()
-	return
 }
 
 func Server(args []string) {
