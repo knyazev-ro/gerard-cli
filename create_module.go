@@ -97,6 +97,7 @@ func HandleCreateModule(args []string) {
 		"FileName":   module,
 		"Module":     module,
 		"Migrations": strings.Join(strings.Split(migrations, "\\"), "/"),
+		"Configs":    strings.Join(strings.Split(configs, "\\"), "/"),
 	}, args)
 	if err != nil {
 		ErrorPrintln("Error creating "+path+":", err.Error())
